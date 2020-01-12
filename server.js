@@ -128,8 +128,8 @@ function parseRequest(req) {
             db.collection(dest_val).find().toArray(function (err, result) {
                 if (err) throw err;
                 let closestResource = GeoHelper.sortAndReturnClosest(src_val, result.map(doc => doc.latlon))
-                //TODO: add "Closest ___ is at: ..." text
-                resolve(getDirection(src_val, closestResource))
+                let start = "\n Directions to the closest " + dest_val + " resource:\n";
+                resolve(getDirection(src_val, closestResource, start))
             })
         })
 
@@ -142,7 +142,7 @@ function createHelpMessage() {
     return Promise.resolve(["Commands menu:", "\n", "enter your latlon with one of these commands to get directions:", "latlon: latlon of destination", "address: address of destination", "place: title of destination", "resource: one of food, shelter or health", "\n", "enter your information into this command to get a diagnosis:", "diagnose: date of birth, gender, symptoms seperated by comma", "\n", "examples:", "latlon: 49, -123", "resource: shelter", "\n", "latlon: 49, -123", "place: McDonalds", "\n", "diagnose: 1984, male, stiff neck, fever"]);
 }
 
-function getDirection(source, dest) {
+function getDirection(source, dest, start = "\n ") {
     return googleMapsClient.directions({
         origin: source,
         destination: dest,
@@ -159,6 +159,7 @@ function getDirection(source, dest) {
             let duration = step.duration.text;
             return instructions + " for " + distance + ` (${duration})`;
         });
+        mappedSteps.unshift(start);
         return mappedSteps;
     })
     .catch((err) => console.log(err));

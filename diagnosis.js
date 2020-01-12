@@ -28,7 +28,7 @@ function diagnose(symptoms, gender, yob) {
             let issueObjs = res.body;
             if (res.body.length > 0) {
                 let issueStrs = issueObjs.map((issueObj) =>
-                    issueObj.Issue.Accuracy + "% chance of the " + issueObj.Issue.Name.toLowerCase()
+                    Math.round(issueObj.Issue.Accuracy) + "% chance of the " + issueObj.Issue.Name.toLowerCase()
                 );
 
                 resolve(issueStrs);
