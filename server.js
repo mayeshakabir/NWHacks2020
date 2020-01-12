@@ -122,7 +122,7 @@ function parseRequest(req) {
 }
 
 function createHelpMessage() {
-    return Promise.resolve(["Help menu:", "enter your latitude and longitude with one of these commands:", "\n", "latlon: latlon of destination", "address: address of destination", "place: title of destination", "diagnose: date of birth, gender, symptoms seperated by comma", "resource: one of food, shelter or health", "\n", "examples:", "49, -123", "resource: shelter", "\n", "49, -123", "place: McDonalds", "\n", "49, -123", "diagnose: 1984, male, stiff neck, fever"]);
+    return Promise.resolve(["Commands menu:", "\n", "enter your latlon with one of these commands to get directions:", "latlon: latlon of destination", "address: address of destination", "place: title of destination", "resource: one of food, shelter or health", "\n", "enter your information into this command to get a diagnosis:", "diagnose: date of birth, gender, symptoms seperated by comma", "\n", "examples:", "latlon: 49, -123", "resource: shelter", "\n", "latlon: 49, -123", "place: McDonalds", "\n", "diagnose: 1984, male, stiff neck, fever"]);
 }
 
 function getDirection(source, dest) {
