@@ -2,6 +2,7 @@ const http = require('http');
 const express = require('express');
 const striptags = require('striptags')
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
+const MongoClient = require('mongodb').MongoClient;
 
 const app = express();
 const bodyParser = require("body-parser");
@@ -9,6 +10,8 @@ const googleMapsClient = require('@google/maps').createClient({
     key: 'AIzaSyAm60CAKzUos3SAZqw0u1TjqZmg2JwvdCQ',
     Promise: Promise
   });
+require('dotenv').config()
+const GeoHelper = require('./utils/geo_helper');
 
   const diagnosis = require('./diagnosis.js');
 
@@ -18,12 +21,14 @@ const COORD_KEY = "latlon";
 const ADDR_KEY = "address";
 const PLACE_KEY = "place";
 const DIAGNOSE_KEY = "diagnose";
+const RESOURCE_KEY = "resource";
+const validResources = ['shelter', 'food', 'medical'];
 
 app.post('/sms', (req, res) => {
   const responsePromise = parseRequest(req.body.Body);
   responsePromise.then((resp) => {
     const twiml = new MessagingResponse();
-    
+
     resp.pop();
     let instStr = resp.join("\n");
 
@@ -79,6 +84,18 @@ function parseRequest(req) {
         let symptomIds = diagnosis.getSymptomIds(patientInfo.slice(2));
         let symptomsStr = "[" + symptomIds.toString() + "]";
         return diagnosis.diagnose("[234,11]", "male", "1984");
+    } else if (dest_key === RESOURCE_KEY && validResources.includes(dest_val)) {
+        const CONNECTION_URL = `mongodb+srv://${process.env.MONGO_ACCOUNT}:${process.env.MONGO_PASSWORD}@cluster0-6ksqp.gcp.mongodb.net/test?retryWrites=true&w=majority`;
+        MongoClient.connect(CONNECTION_URL, function(err, client) {
+            if(err) throw err;
+            db = client.db('offlineDB');
+          
+            db.collection(dest_val).find().toArray(function (err, result) {
+              if (err) throw err;
+              let closestResource = GeoHelper.sortAndReturnClosest(source, result.map(doc => doc.latlon))
+              console.log(closestResource)
+            })
+          });
     } else {
         console.log("cannot parse for response");
     }

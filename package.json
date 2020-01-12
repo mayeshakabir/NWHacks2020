@@ -20,6 +20,7 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "geolib": "^3.2.1",
     "http": "0.0.0",
     "mongodb": "^3.4.1",
     "striptags": "^3.1.1",
