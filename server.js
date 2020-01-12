@@ -100,12 +100,10 @@ function parseRequest(req) {
         })
         .asPromise()
         .then((resp) => {
-<<<<<<< Updated upstream
             function onlyUnique(value, index, self) {
                 return self.indexOf(value) === index;
             }
             let uniqueNames = resp.json.results.map(r => r.name).filter(onlyUnique);
-            console.log(uniqueNames);
             if (uniqueNames.length === 1) {
                 loc = resp.json.results[0].geometry.location;
                 return getDirection(source, loc.lat + "," + loc.lng);
@@ -118,10 +116,6 @@ function parseRequest(req) {
                 response.push("\n Please re-query with the full name")
                 return Promise.resolve(response);
             }
-=======
-            loc = resp.json.results[0].geometry.location;
-            return getDirection(src_val, loc.lat + "," + loc.lng);
->>>>>>> Stashed changes
         })
         .catch((err) => console.log(err));
     } else if (src_key === COORD_KEY && dest_key === RESOURCE_KEY && validResources.includes(dest_val.toLowerCase())) {
