@@ -29,7 +29,6 @@ app.post('/sms', (req, res) => {
   responsePromise.then((resp) => {
     const twiml = new MessagingResponse();
 
-    resp.pop();
     let instStr = resp.join("\n");
 
     /*
@@ -113,7 +112,7 @@ function getDirection(source, dest) {
     .then((resp) => {
         let steps = resp.json.routes[0].legs[0].steps;
         let mappedSteps = steps.map((step) => {
-            let instructions = striptags(step.html_instructions);
+            let instructions = striptags(step.html_instructions.replace("</b><div style=\"font-size:0.9em\">", "\n"));
             let distance = step.distance.text;
             let duration = step.duration.text;
             return instructions + " for " + distance + ` (${duration})`;
