@@ -106,7 +106,7 @@ function parseRequest(req) {
             let uniqueNames = resp.json.results.map(r => r.name).filter(onlyUnique);
             if (uniqueNames.length === 1) {
                 loc = resp.json.results[0].geometry.location;
-                return getDirection(source, loc.lat + "," + loc.lng);
+                return getDirection(src_val, loc.lat + "," + loc.lng);
             } else {
                 let response = ["\n", "Did you mean:", "\n"];
                 let loopCount = Math.min(5, uniqueNames.length);
