@@ -56,11 +56,17 @@ app.post('/sms', (req, res) => {
 
 function parseRequest(req) {
     let inputs = req.split("\n");
+
+    let source = inputs[0];
+    let srcArr = source.split(": ");
+    let src_key = srcArr[0].toLowerCase();
+    let src_val = srcArr[1].replace(/\s/g, "");
+
     if (inputs.length === 1) {
-        if (inputs[0] === HELPMENU_KEY) {
+        if (inputs[0].toLowerCase() === HELPMENU_KEY) {
             return createHelpMessage();
-        } else if (inputs[0].includes(DIAGNOSE_KEY)) {
-            let patientInfo = inputs[0].split(": ")[1].split(", ");
+        } else if (src_key === DIAGNOSE_KEY) {
+            let patientInfo =srcArr[1].split(", ");
             let yob = patientInfo[0];
             let gender = patientInfo[1];
             return diagnosis.getSymptomIds(patientInfo.slice(2), db)
@@ -73,19 +79,17 @@ function parseRequest(req) {
         }
     }
 
-    let source = inputs[0].includes(COORD_KEY) ? inputs[0].split(": ")[1].replace(/\s/g, "") : inputs[0].replace(/\s/g, "");
     let destination = inputs[1];
+    let destArr = destination.split(": ");
+    let dest_key = destArr[0].toLowerCase();
+    let dest_val = destArr[1];
 
-    let srcDestArr = destination.split(": ");
-    let dest_key = srcDestArr[0];
-    let dest_val = srcDestArr[1];
-
-    if (dest_key === COORD_KEY) {
-        return getDirection(source, dest_val.replace(/\s/g, ""));
-    } else if (dest_key === ADDR_KEY) {
-        return getDirection(source, dest_val);
-    } else if (dest_key === PLACE_KEY) {
-        let latlon = source.split(",");
+    if (src_key === COORD_KEY && dest_key === COORD_KEY) {
+        return getDirection(src_val, dest_val.replace(/\s/g, ""));
+    } else if (src_key === COORD_KEY && dest_key === ADDR_KEY) {
+        return getDirection(src_val, dest_val);
+    } else if (src_key === COORD_KEY && dest_key === PLACE_KEY) {
+        let latlon = src_val.split(",");
         let lat = Number(latlon[0]);
         let lon = Number(latlon[1]);
         return googleMapsClient.places({
@@ -96,6 +100,7 @@ function parseRequest(req) {
         })
         .asPromise()
         .then((resp) => {
+<<<<<<< Updated upstream
             function onlyUnique(value, index, self) {
                 return self.indexOf(value) === index;
             }
@@ -113,15 +118,19 @@ function parseRequest(req) {
                 response.push("\n Please re-query with the full name")
                 return Promise.resolve(response);
             }
+=======
+            loc = resp.json.results[0].geometry.location;
+            return getDirection(src_val, loc.lat + "," + loc.lng);
+>>>>>>> Stashed changes
         })
         .catch((err) => console.log(err));
-    } else if (dest_key === RESOURCE_KEY && validResources.includes(dest_val)) {
+    } else if (src_key === COORD_KEY && dest_key === RESOURCE_KEY && validResources.includes(dest_val.toLowerCase())) {
         return new Promise((resolve, reject) => {
             db.collection(dest_val).find().toArray(function (err, result) {
                 if (err) throw err;
-                let closestResource = GeoHelper.sortAndReturnClosest(source, result.map(doc => doc.latlon))
+                let closestResource = GeoHelper.sortAndReturnClosest(src_val, result.map(doc => doc.latlon))
                 //TODO: add "Closest ___ is at: ..." text
-                resolve(getDirection(source, closestResource))
+                resolve(getDirection(src_val, closestResource))
             })
         })
 

@@ -8,6 +8,8 @@ const unirest_token = process.env.UNIREST_TOKEN;
 
 function diagnose(symptoms, gender, yob) {
     return new Promise((resolve, reject) => {
+        console.log("symptoms: \n");
+        console.log(symptoms);
         req.query({
             "symptoms": symptoms,
             "gender": gender,
@@ -24,6 +26,7 @@ function diagnose(symptoms, gender, yob) {
             if (res.error) reject(new Error(res.error));
 
             let issueObjs = res.body;
+<<<<<<< Updated upstream
             if (res.body.length > 0) {
                 let issueStrs = issueObjs.map((issueObj) =>
                     issueObj.Issue.Accuracy + "% chance of the " + issueObj.Issue.Name.toLowerCase()
@@ -33,6 +36,15 @@ function diagnose(symptoms, gender, yob) {
             } else {
                 resolve(["We could not diagnose you with the given symptoms"]);
             }
+=======
+            console.log("issueObjs: \n");
+            console.log(issueObjs);
+            let issueStrs = issueObjs.map((issueObj) => 
+                issueObj.Issue.Accuracy + "% chance of the " + issueObj.Issue.Name.toLowerCase()
+            );
+
+            resolve(issueStrs);
+>>>>>>> Stashed changes
         }); 
     });  
 }
