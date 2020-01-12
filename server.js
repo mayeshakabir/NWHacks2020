@@ -96,8 +96,23 @@ function parseRequest(req) {
         })
         .asPromise()
         .then((resp) => {
-            loc = resp.json.results[0].geometry.location;
-            return getDirection(source, loc.lat + "," + loc.lng);
+            function onlyUnique(value, index, self) {
+                return self.indexOf(value) === index;
+            }
+            let uniqueNames = resp.json.results.map(r => r.name).filter(onlyUnique);
+            console.log(uniqueNames);
+            if (uniqueNames.length === 1) {
+                loc = resp.json.results[0].geometry.location;
+                return getDirection(source, loc.lat + "," + loc.lng);
+            } else {
+                let response = ["\n", "Did you mean:", "\n"];
+                let loopCount = Math.min(5, uniqueNames.length);
+                for (let i = 0; i < loopCount; i++) {
+                    response.push(uniqueNames[i] + "\n");
+                }
+                response.push("\n Please re-query with the full name")
+                return Promise.resolve(response);
+            }
         })
         .catch((err) => console.log(err));
     } else if (dest_key === RESOURCE_KEY && validResources.includes(dest_val)) {
