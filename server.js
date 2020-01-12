@@ -65,7 +65,6 @@ function parseRequest(req) {
     let source = inputs[0];
     let srcArr = source.split(": ");
     let src_key = srcArr[0].toLowerCase();
-    console.log(srcArr[1]);
     let src_val = srcArr[1].replace(/\s/g, "");
 
     if (inputs.length === 1) {
