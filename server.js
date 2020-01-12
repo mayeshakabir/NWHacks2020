@@ -65,7 +65,6 @@ function parseRequest(req) {
     let source = inputs[0];
     let srcArr = source.split(": ");
     let src_key = srcArr[0].toLowerCase();
-    let src_val = srcArr[1].replace(/\s/g, "");
 
     if (inputs.length === 1) {
         if (inputs[0].toLowerCase() === HELPMENU_KEY) {
@@ -83,6 +82,8 @@ function parseRequest(req) {
             console.log("invalid command");
         }
     }
+
+    let src_val = srcArr[1].replace(/\s/g, "");
 
     let destination = inputs[1];
     let destArr = destination.split(": ");
