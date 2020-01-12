@@ -21,7 +21,7 @@ const ADDR_KEY = "address";
 const PLACE_KEY = "place";
 const DIAGNOSE_KEY = "diagnose";
 const RESOURCE_KEY = "resource";
-const HELPMENU_KEY = "help";
+const HELPMENU_KEY = "cmd";
 const validResources = ['shelter', 'food', 'medical'];
 
 const CONNECTION_URL = `mongodb+srv://${process.env.MONGO_ACCOUNT}:${process.env.MONGO_PASSWORD}@cluster0-6ksqp.gcp.mongodb.net/test?retryWrites=true&w=majority`;
@@ -65,12 +65,21 @@ function parseRequest(req) {
     if (inputs.length === 1) {
         if (inputs[0] === HELPMENU_KEY) {
             return createHelpMessage();
+        } else if (inputs[0].includes(DIAGNOSE_KEY)) {
+            let patientInfo = inputs[0].split(": ")[1].split(", ");
+            let yob = patientInfo[0];
+            let gender = patientInfo[1];
+            return diagnosis.getSymptomIds(patientInfo.slice(2), db)
+            .then((symptomIds) => {
+                let symptomsStr = "[" + symptomIds.toString() + "]";
+                return diagnosis.diagnose(symptomsStr, gender, yob);
+            });
         } else {
             console.log("invalid command");
         }
     }
 
-    let source = inputs[0].replace(/\s/g, "");
+    let source = inputs[0].includes(COORD_KEY) ? inputs[0].split(": ")[1].replace(/\s/g, "") : inputs[0].replace(/\s/g, "");
     let destination = inputs[1];
 
     let srcDestArr = destination.split(": ");
@@ -97,17 +106,6 @@ function parseRequest(req) {
             return getDirection(source, loc.lat + "," + loc.lng);
         })
         .catch((err) => console.log(err));
-    } else if (dest_key === DIAGNOSE_KEY) {
-        let patientInfo = dest_val.split(", ");
-        let yob = patientInfo[0];
-        let gender = patientInfo[1];
-        // let symptomIds = diagnosis.getSymptomIds(patientInfo.slice(2));
-        console.log(patientInfo.slice(2));
-        return diagnosis.getSymptomIds(patientInfo.slice(2), db)
-            .then((symptomIds) => {
-                let symptomsStr = "[" + symptomIds.toString() + "]";
-                return diagnosis.diagnose(symptomsStr, gender, yob);
-            })
     } else if (dest_key === RESOURCE_KEY && validResources.includes(dest_val)) {
         return new Promise((resolve, reject) => {
             db.collection(dest_val).find().toArray(function (err, result) {
@@ -124,7 +122,7 @@ function parseRequest(req) {
 }
 
 function createHelpMessage() {
-    return Promise.resolve(["help menu:", "enter your latitude and longitude with one of these commands:", "\n", "latlon: latlon of destination", "address: address of destination", "place: title of destination", "diagnose: date of birth, gender, symptoms seperated by comma", "resource: one of food, shelter or health", "\n", "examples:", "49, -123", "resource: shelter", "\n", "49, -123", "place: McDonalds", "\n", "49, -123", "diagnose: 1984, male, neck stiffness, stiff neck, fever"]);
+    return Promise.resolve(["Help menu:", "enter your latitude and longitude with one of these commands:", "\n", "latlon: latlon of destination", "address: address of destination", "place: title of destination", "diagnose: date of birth, gender, symptoms seperated by comma", "resource: one of food, shelter or health", "\n", "examples:", "49, -123", "resource: shelter", "\n", "49, -123", "place: McDonalds", "\n", "49, -123", "diagnose: 1984, male, stiff neck, fever"]);
 }
 
 function getDirection(source, dest) {
