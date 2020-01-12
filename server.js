@@ -37,9 +37,14 @@ MongoClient.connect(CONNECTION_URL, {useUnifiedTopology: true}, function(err, cl
     console.log("Successfully connected to mongodb!")
 });
 
-http.createServer(app).listen(1337, () => {
-    console.log('Express server listening on port 1337');
+http.createServer(app).listen(3000, () => {
+    console.log('Express server listening on port 3000');
 });
+
+app.get('/', (req, res) => {
+    console.log("Successfully hit the endpoint!");
+    res.end("Nice!");
+})
 
 app.post('/sms', (req, res) => {
   const responsePromise = parseRequest(req.body.Body);
