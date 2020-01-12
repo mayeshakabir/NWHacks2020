@@ -1,26 +1,38 @@
 const http = require('http');
 const express = require('express');
+const striptags = require('striptags')
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 
 const app = express();
 const bodyParser = require("body-parser");
+const googleMapsClient = require('@google/maps').createClient({
+    key: 'AIzaSyAm60CAKzUos3SAZqw0u1TjqZmg2JwvdCQ',
+    Promise: Promise
+  });
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
 const COORD_KEY = "latlon";
 const ADDR_KEY = "address";
 const PLACE_KEY = "place";
-const DIR_URL_TEMPLATE = "https://maps.googleapis.com/maps/api/directions/json?origin={1}&destination={2}&mode=walking&key=AIzaSyAm60CAKzUos3SAZqw0u1TjqZmg2JwvdCQ";
-const PLACES_URL_TEMPLATE = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={1}&radius=1000&keyword={2}&key=AIzaSyAm60CAKzUos3SAZqw0u1TjqZmg2JwvdCQ;"
 
 app.post('/sms', (req, res) => {
-  const twiml = new MessagingResponse();
-  const response = parseRequest(req.body.Body);
+  const responsePromise = parseRequest(req.body.Body);
+  responsePromise.then((resp) => {
+    const twiml = new MessagingResponse();
 
-  twiml.message('The Robots are coming! Head for the hills!');
+    let instStr = resp.join("\n");
 
-  res.writeHead(200, {'Content-Type': 'text/xml'});
-  res.end(twiml.toString());
+    /*
+    resp.forEach(inst => {
+        twiml.message(inst);
+    });
+    */
+   twiml.message(instStr);
+
+    res.writeHead(200, {'Content-Type': 'text/xml'});
+    res.end(twiml.toString());   
+  });
 });
 
 http.createServer(app).listen(1337, () => {
@@ -29,34 +41,56 @@ http.createServer(app).listen(1337, () => {
 
 function parseRequest(req) {
     let inputs = req.split("\n");
-    let url = buildURL(inputs[0], inputs[1], DIR_URL_TEMPLATE);
-    //make call here
-    console.log(`built URL: ${url}`);
-}
+    let source = inputs[0].replace(/\s/g, "");
+    let destination = inputs[1];
 
-function buildURL(sourceStr, destinationStr, url) {
-    let srcDestArr = destinationStr.split(": ");
+    let srcDestArr = destination.split(": ");
     let dest_key = srcDestArr[0];
     let dest_val = srcDestArr[1];
-    
-    url = url.replace("{1}", sourceStr.replace(/\s/g, ""));
 
     if (dest_key === COORD_KEY) {
-        url = url.replace("{2}", dest_val.replace(/\s/g, ""));
+        return getDirection(source, dest_val.replace(/\s/g, ""));
     } else if (dest_key === ADDR_KEY) {
-        url = url.replace("{2}", dest_val.replace(/\s/, "+"));
+        return getDirection(source, dest_val);
     } else if (dest_key === PLACE_KEY) {
-        let place_dest = parsePlaceRequest(PLACES_URL_TEMPLATE, sourceStr, dest_val);
-        url = url.replace("{2}", place_dest.replace(/\s/g, ""));
+        let latlon = source.split(",");
+        let lat = Number(latlon[0]);
+        let lon = Number(latlon[1]);
+        return googleMapsClient.places({
+            query: dest_val,
+            language: 'en',
+            location: [lat, lon],
+            radius: 1000
+        })
+        .asPromise()
+        .then((resp) => {
+            loc = resp.json.results[0].geometry.location;
+            return getDirection(source, loc.lat + "," + loc.lng);
+        })
+        .catch((err) => console.log(err));
     } else {
-        console.log("cannot parse for url");
+        console.log("cannot parse for response");
     }
-
-    return url;
 }
 
-function parsePlaceRequest(url, source_val, dest_val) {
-    url = url.replace("{1}", source_val.replace(/\s/g, ""));
-    url = url.replace("{2}", dest_val.replace(/\s/, "+"));
-    // GET and return
+function getDirection(source, dest) {
+    return googleMapsClient.directions({
+        origin: source,
+        destination: dest,
+        mode: 'walking',
+        language: 'en',
+        units: 'metric',
+    })
+    .asPromise()
+    .then((resp) => {
+        let steps = resp.json.routes[0].legs[0].steps;
+        let mappedSteps = steps.map((step) => {
+            let instructions = striptags(step.html_instructions);
+            let distance = step.distance.text;
+            let duration = step.duration.text;
+            return instructions + " for " + distance + ` (${duration})`;
+        });
+        return mappedSteps;
+    })
+    .catch((err) => console.log(err));
 }
