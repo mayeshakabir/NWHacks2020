@@ -13,9 +13,8 @@ const googleMapsClient = require('@google/maps').createClient({
 require('dotenv').config()
 const GeoHelper = require('./utils/geo_helper');
 
-  const diagnosis = require('./diagnosis.js');
+const diagnosis = require('./diagnosis.js');
 
-app.use(bodyParser.urlencoded({ extended: false }));
 
 const COORD_KEY = "latlon";
 const ADDR_KEY = "address";
@@ -24,6 +23,23 @@ const DIAGNOSE_KEY = "diagnose";
 const RESOURCE_KEY = "resource";
 const HELPMENU_KEY = "help";
 const validResources = ['shelter', 'food', 'medical'];
+
+const CONNECTION_URL = `mongodb+srv://${process.env.MONGO_ACCOUNT}:${process.env.MONGO_PASSWORD}@cluster0-6ksqp.gcp.mongodb.net/test?retryWrites=true&w=majority`;
+var db;
+
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// Initialize database connection pool
+console.log("Initializing mongodb connection...")
+MongoClient.connect(CONNECTION_URL, {useUnifiedTopology: true}, function(err, client) {
+    if(err) throw err;
+    db = client.db('offlineDB');
+    console.log("Successfully connected to mongodb!")
+});
+
+http.createServer(app).listen(1337, () => {
+    console.log('Express server listening on port 1337');
+});
 
 app.post('/sms', (req, res) => {
   const responsePromise = parseRequest(req.body.Body);
@@ -42,10 +58,6 @@ app.post('/sms', (req, res) => {
     res.writeHead(200, {'Content-Type': 'text/xml'});
     res.end(twiml.toString());   
   });
-});
-
-http.createServer(app).listen(1337, () => {
-  console.log('Express server listening on port 1337');
 });
 
 function parseRequest(req) {
@@ -89,21 +101,23 @@ function parseRequest(req) {
         let patientInfo = dest_val.split(", ");
         let yob = patientInfo[0];
         let gender = patientInfo[1];
-        let symptomIds = diagnosis.getSymptomIds(patientInfo.slice(2));
-        let symptomsStr = "[" + symptomIds.toString() + "]";
-        return diagnosis.diagnose("[234,11]", "male", "1984");
-    } else if (dest_key === RESOURCE_KEY && validResources.includes(dest_val)) {
-        const CONNECTION_URL = `mongodb+srv://${process.env.MONGO_ACCOUNT}:${process.env.MONGO_PASSWORD}@cluster0-6ksqp.gcp.mongodb.net/test?retryWrites=true&w=majority`;
-        MongoClient.connect(CONNECTION_URL, function(err, client) {
-            if(err) throw err;
-            db = client.db('offlineDB');
-          
-            db.collection(dest_val).find().toArray(function (err, result) {
-              if (err) throw err;
-              let closestResource = GeoHelper.sortAndReturnClosest(source, result.map(doc => doc.latlon))
-              console.log(closestResource)
+        // let symptomIds = diagnosis.getSymptomIds(patientInfo.slice(2));
+        console.log(patientInfo.slice(2));
+        return diagnosis.getSymptomIds(patientInfo.slice(2), db)
+            .then((symptomIds) => {
+                let symptomsStr = "[" + symptomIds.toString() + "]";
+                return diagnosis.diagnose(symptomsStr, gender, yob);
             })
-          });
+    } else if (dest_key === RESOURCE_KEY && validResources.includes(dest_val)) {
+        return new Promise((resolve, reject) => {
+            db.collection(dest_val).find().toArray(function (err, result) {
+                if (err) throw err;
+                let closestResource = GeoHelper.sortAndReturnClosest(source, result.map(doc => doc.latlon))
+                //TODO: add "Closest ___ is at: ..." text
+                resolve(getDirection(source, closestResource))
+            })
+        })
+
     } else {
         console.log("cannot parse for response");
     }
