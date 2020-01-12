@@ -24,11 +24,15 @@ function diagnose(symptoms, gender, yob) {
             if (res.error) reject(new Error(res.error));
 
             let issueObjs = res.body;
-            let issueStrs = issueObjs.map((issueObj) => 
-                issueObj.Issue.Accuracy + "% chance of the " + issueObj.Issue.Name.toLowerCase()
-            );
+            if (res.body.length > 0) {
+                let issueStrs = issueObjs.map((issueObj) =>
+                    issueObj.Issue.Accuracy + "% chance of the " + issueObj.Issue.Name.toLowerCase()
+                );
 
-            resolve(issueStrs);
+                resolve(issueStrs);
+            } else {
+                resolve(["We could not diagnose you with the given symptoms"]);
+            }
         }); 
     });  
 }
