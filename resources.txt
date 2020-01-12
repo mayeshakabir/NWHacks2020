@@ -1,0 +1,98 @@
+{
+  "shelter": [
+    {
+      "name": "First Baptist Church",
+      "phone": "604-683-8441",
+      "latlon": "49.2815326,-123.1270235",
+      "info": "Tuesday nights only (does not operate from June to August). Tickets given out at 6:30pm. No alcohol/drug use on site. Curfew 9.30pm."
+    },
+    {
+      "name": "First United Church",
+      "phone": "604-839-6880",
+      "latlon": "49.2811581,-123.097203",
+      "info": "Wheelchair accessible, carts and pets allowed."
+    },
+    {
+      "name": "Lookout Al Mitchell Place Shelter",
+      "phone": "604-681-9126",
+      "latlon": "49.2839299,-123.0962329",
+      "info": "Wheelchair accessible. Pets allowed. Laundry facilities. Medication/money administration."
+    },
+    {
+      "name": "Lookout Yukon Shelter",
+      "phone": "604-264-1680",
+      "latlon": "49.2668706,-123.1125057",
+      "info": "Wheelchair accessible. Pets allowed. Laundry facilities. Medication/money administration.Harm reduction. No alcohol/drugs on site, but safe injection room available."
+    },
+    {
+      "name": "New Fountain Shelter",
+      "phone": "604-669-3306",
+      "latlon": "49.2809847,-123.0983543",
+      "info": "Wheelchair accessible. Pets and carts allowed. Shower facilities. Harm reduction. Medicaland mental health nurses. Intake 7 pm – 10 pm; 2 meals."
+    }
+  ],
+  "food": [
+    {
+      "name": "The Door Is Open",
+      "phone": "(604) 669-0498",
+      "latlon": "49.2825929,-123.09775",
+      "info": "MON - FRI: Lunch: 11 am"
+    },
+    {
+      "name": "Union Gospel Mission",
+      "phone": "(604) 253-3323",
+      "latlon": "49.2813943,-123.0934254",
+      "info": "MONDAY - FRIDAY: Lunch: 11 am. Dinner: 6:30 pm. SATURDAY: Lunch: 11am. Dinner: 4pm. SUNDAY: Dinner: 4 pm."
+    },
+    {
+      "name": "Mission Possible",
+      "phone": "(604) 253-4469",
+      "latlon": "49.2814109,-123.0901394",
+      "info": "THURSDAY: Charlie's SPCA PET FOOD BANK 10am - Noon. SATURDAY: Tickets given out at 8:00am Power Breakfast 9am / 10am. Coffee 12pm - 1:30pm"
+    },
+    {
+      "name": "Potters Place",
+      "phone": "(604) 688-2968",
+      "latlon": "49.2815625,-123.1060063",
+      "info": "EVERYDAY: Noon - 1pm / 10pm - 11pm."
+    },
+    {
+      "name": "Dugout",
+      "phone": "(604) 685-5239",
+      "latlon": "49.2834624,-123.1026876",
+      "info": "EVERYDAY: 7:30 am."
+    }
+  ],
+  "medical": [
+    {
+      "name": "Vancouver Harbour Light: Beacon",
+      "phone": "(604) 646 6846",
+      "latlon": "49.2824631,-123.1013063",
+      "info": "EVERYDAY: 8 am - 11:30 pm"
+    },
+    {
+      "name": "Directions Youth Services",
+      "phone": "(604) 633 1472",
+      "latlon": "49.2795991,-123.1280679",
+      "info": "EVERYDAY: open 24 hours"
+    },
+    {
+      "name": "Vancouver Native Health Society",
+      "phone": "(604) 255-9766",
+      "latlon": "49.2814887,-123.0964112",
+      "info": "MONDAY - SATURDAY: 9:30am - 12:30pm and 1:30 pm - 8:30 pm. SUNDAY: 9:30 am to 12:30 pm"
+    },
+    {
+      "name": "RainCity Triage Shelter",
+      "phone": "(604) 254-3700",
+      "latlon": "49.2830213,-123.0922009",
+      "info": "EVERYDAY: open 24 hours"
+    },
+    {
+      "name": "PLEA Community Services (Youth)",
+      "phone": "(604) 871-0450",
+      "latlon": "49.2504574,-123.069965",
+      "info": "EVERYDAY: open 24 hours"
+    }
+  ]
+}
