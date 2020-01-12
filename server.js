@@ -22,6 +22,7 @@ const ADDR_KEY = "address";
 const PLACE_KEY = "place";
 const DIAGNOSE_KEY = "diagnose";
 const RESOURCE_KEY = "resource";
+const HELPMENU_KEY = "help";
 const validResources = ['shelter', 'food', 'medical'];
 
 app.post('/sms', (req, res) => {
@@ -49,6 +50,14 @@ http.createServer(app).listen(1337, () => {
 
 function parseRequest(req) {
     let inputs = req.split("\n");
+    if (inputs.length === 1) {
+        if (inputs[0] === HELPMENU_KEY) {
+            return createHelpMessage();
+        } else {
+            console.log("invalid command");
+        }
+    }
+
     let source = inputs[0].replace(/\s/g, "");
     let destination = inputs[1];
 
@@ -98,6 +107,10 @@ function parseRequest(req) {
     } else {
         console.log("cannot parse for response");
     }
+}
+
+function createHelpMessage() {
+    return Promise.resolve(["help menu:", "enter your latitude and longitude with one of these commands:", "\n", "latlon: latlon of destination", "address: address of destination", "place: title of destination", "diagnose: date of birth, gender, symptoms seperated by comma", "resource: one of food, shelter or health", "\n", "examples:", "49, -123", "resource: shelter", "\n", "49, -123", "place: McDonalds", "\n", "49, -123", "diagnose: 1984, male, neck stiffness, stiff neck, fever"]);
 }
 
 function getDirection(source, dest) {
