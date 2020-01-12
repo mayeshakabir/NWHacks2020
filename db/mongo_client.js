@@ -1,10 +1,13 @@
-var MongoClient = require('mongodb').MongoClient;
+require('dotenv').config({path:"../.env"})
+const MongoClient = require('mongodb').MongoClient;
 var db;
 
+const CONNECTION_URL = `mongodb+srv://${process.env.MONGO_ACCOUNT}:${process.env.MONGO_PASSWORD}@cluster0-6ksqp.gcp.mongodb.net/test?retryWrites=true&w=majority`;
+
 // Initialize connection once
-MongoClient.connect("mongodb://localhost:27017", function(err, client) {
+MongoClient.connect(CONNECTION_URL, function(err, client) {
   if(err) throw err;
-  db = client.db('pugDB');
+  db = client.db('offlineDB');
 
   db.collection('test').find().toArray(function (err, result) {
     if (err) throw err
