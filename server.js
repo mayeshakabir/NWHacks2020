@@ -20,7 +20,8 @@ app.post('/sms', (req, res) => {
   const responsePromise = parseRequest(req.body.Body);
   responsePromise.then((resp) => {
     const twiml = new MessagingResponse();
-
+    
+    resp.pop();
     let instStr = resp.join("\n");
 
     /*
