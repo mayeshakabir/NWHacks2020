@@ -32,6 +32,7 @@ function diagnose(symptoms, gender, yob) {
     });  
 }
 
+// TODO map symptom names to ids (in MongoDB Atlas)
 function getSymptomIds(symptoms) {
     return [234, 11];
 }
