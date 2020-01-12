@@ -10,11 +10,14 @@ const googleMapsClient = require('@google/maps').createClient({
     Promise: Promise
   });
 
+  const diagnosis = require('./diagnosis.js');
+
 app.use(bodyParser.urlencoded({ extended: false }));
 
 const COORD_KEY = "latlon";
 const ADDR_KEY = "address";
 const PLACE_KEY = "place";
+const DIAGNOSE_KEY = "diagnose";
 
 app.post('/sms', (req, res) => {
   const responsePromise = parseRequest(req.body.Body);
@@ -69,6 +72,13 @@ function parseRequest(req) {
             return getDirection(source, loc.lat + "," + loc.lng);
         })
         .catch((err) => console.log(err));
+    } else if (dest_key === DIAGNOSE_KEY) {
+        let patientInfo = dest_val.split(", ");
+        let yob = patientInfo[0];
+        let gender = patientInfo[1];
+        let symptomIds = diagnosis.getSymptomIds(patientInfo.slice(2));
+        let symptomsStr = "[" + symptomIds.toString() + "]";
+        return diagnosis.diagnose("[234,11]", "male", "1984");
     } else {
         console.log("cannot parse for response");
     }
